@@ -1,0 +1,190 @@
+{
+  "en": {
+    "plus": {
+      "text": "Drawing tools",
+      "alignment": "left"
+    },
+    "asset": {
+      "text": "Asset",
+      "alignment": "bottom"
+    },
+    "scene": {
+      "text": "Scene",
+      "alignment": "bottom"
+    },
+    "menu-logo": {
+      "text": "Menu options",
+      "alignment": "right"
+    },
+    "about": {
+      "text": "Software Info.",
+      "alignment": "right"
+    },
+    "project": {
+      "text": "Project window",
+      "alignment": "right"
+    },
+    "language": {
+      "text": "Change language",
+      "alignment": "right"
+    },
+    "brush": {
+      "text": "Brush",
+      "alignment": "left"
+    },
+    "eraser": {
+      "text": "Eraser",
+      "alignment": "left"
+    },
+    "clear": {
+      "text": "Clear canvas",
+      "alignment": "left"
+    },
+    "undo": {
+      "text": "Undo",
+      "alignment": "left"
+    },
+    "redo": {
+      "text": "Redo",
+      "alignment": "left"
+    },
+    "createAsset": {
+      "text": "Create asset",
+      "alignment": "left"
+    },
+    "assetGallery": {
+      "text": "Asset gallery",
+      "alignment": "left"
+    },
+    "createScene": {
+      "text": "Create Scene",
+      "alignment": "left"
+    },
+    "motionScene": {
+      "text": "Motion scene",
+      "alignment": "left"
+    },
+    "sceneGallery": {
+      "text": "Scene gallery",
+      "alignment": "left"
+    },
+    "editScene": {
+      "text": "Edit Scene",
+      "alignment": "top"
+    },
+    "saveImg": {
+      "text": "Save image",
+      "alignment": "top"
+    },
+    "generateAnim": {
+      "text": "Generate animation",
+      "alignment": "top"
+    },
+    "video_opener": {
+      "text": "Open video file",
+      "alignment": "right"
+    },
+    "audio_opener": {
+      "text": "Open audio file",
+      "alignment": "bottom"
+    },
+    "merge": {
+      "text": "merge",
+      "alignment": "bottom"
+    }
+  },
+  "ko": {
+    "plus": {
+      "text": "그림 도구",
+      "alignment": "left"
+    },
+    "asset": {
+      "text": "자산",
+      "alignment": "bottom"
+    },
+    "scene": {
+      "text": "장면",
+      "alignment": "bottom"
+    },
+    "menu-logo": {
+      "text": "메뉴 옵션",
+      "alignment": "right"
+    },
+    "about": {
+      "text": "소프트웨어 정보",
+      "alignment": "right"
+    },
+    "project": {
+      "text": "프로젝트 창",
+      "alignment": "right"
+    },
+    "language": {
+      "text": "언어 변경",
+      "alignment": "right"
+    },
+    "brush": {
+      "text": "붓",
+      "alignment": "left"
+    },
+    "eraser": {
+      "text": "지우개",
+      "alignment": "left"
+    },
+    "clear": {
+      "text": "캔버스 지우기",
+      "alignment": "left"
+    },
+    "undo": {
+      "text": "되돌리기",
+      "alignment": "left"
+    },
+    "redo": {
+      "text": "다시 실행",
+      "alignment": "left"
+    },
+    "createAsset": {
+      "text": "자산 생성",
+      "alignment": "left"
+    },
+    "assetGallery": {
+      "text": "자산 갤러리",
+      "alignment": "left"
+    },
+    "createScene": {
+      "text": "장면 생성",
+      "alignment": "left"
+    },
+    "motionScene": {
+      "text": "모션 장면",
+      "alignment": "left"
+    },
+    "sceneGallery": {
+      "text": "장면 갤러리",
+      "alignment": "left"
+    },
+    "editScene": {
+      "text": "장면 편집",
+      "alignment": "top"
+    },
+    "saveImg": {
+      "text": "이미지 저장",
+      "alignment": "top"
+    },
+    "generateAnim": {
+      "text": "애니메이션 생성",
+      "alignment": "top"
+    },
+    "video_opener": {
+      "text": "비디오 파일 열기",
+      "alignment": "right"
+    },
+    "audio_opener": {
+      "text": "오디오 파일 열기",
+      "alignment": "bottom"
+    },
+    "merge": {
+      "text": "병합",
+      "alignment": "bottom"
+    }
+  }
+}

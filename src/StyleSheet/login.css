@@ -1,0 +1,133 @@
+.popup {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 300px;
+  max-width: 100%;
+  position: relative;
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+  position: relative;
+  color: black;
+}
+.input-group label{
+  color: black;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.password-group .password-container {
+  display: flex;
+  align-items: center;
+}
+
+.password-container input {
+  width: calc(100% - 70px);
+  margin-bottom: 0;
+}
+
+.toggle-password {
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  height: 40px;
+  width: 70px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-password:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+  display: none;
+  font-size: 14px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button#login-button {
+  background-color: #28a745;
+  color: white;
+}
+
+button#login-button:hover {
+  background-color: #218838;
+}
+
+button.signup-button {
+  background-color: #007bff;
+  color: white;
+}
+
+button.signup-button:hover {
+  background-color: #0056b3;
+}
