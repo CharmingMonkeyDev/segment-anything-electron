@@ -1,0 +1,154 @@
+.top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.top-properties {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 80px;
+  right: 87px;
+  gap: 20px;
+  width: fit-content;
+  height: fit-content;
+  padding: 20px;
+  background-color: #4e4e4e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
+}
+.top-properties-buttons {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 80px;
+  right: 20px;
+  gap: 8px;
+  width: fit-content;
+  height: fit-content;
+  /* padding: 20px; */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+}
+
+.buttonContainer {
+  display: flex;
+  position: relative !important;
+  flex-direction: row !important;
+  gap: 10px !important;
+  top: auto !important;
+  right: auto !important;
+}
+.asset-top-properties {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 143px;
+  right: 87px;
+  width: 250px;
+  height: 250px;
+  padding: 20px;
+  background-color: #4e4e4e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
+}
+.asset-character-properties {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: 143px;
+  right: 87px;
+  width: 250px;
+  height: 250px;
+  padding: 20px;
+  background-color: #4e4e4e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
+}
+.size {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 0px;
+}
+
+label {
+  font-size: 16px;
+  margin-top: 8px;
+  color: #ffffff;
+}
+
+#size-input {
+  width: 30px;
+  height: 20px;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  color: #4a4a4a;
+}
+.size-input-brush {
+  width: 30px;
+  height: 20px;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  color: #4a4a4a;
+}
+.options {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: end;
+}
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4e4e4e; /* Green background */
+  border: none; /* Remove borders */
+  color: rgb(172, 172, 172); /* White text */
+  padding: 18px 20px; /* Some padding */
+  font-size: 16px; /* Set a font size */
+  cursor: pointer; /* Mouse pointer on hover */
+  border-radius: 10%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
+    width: max-content;
+    min-width:  60px;
+}
+
+.icon-btn i {
+  pointer-events: none; /* Ensure icons are not clickable separately */
+}
+
+.icon-btn:hover {
+  background-color: #3a3a3a; /* Darker green */
+  color: #eaeaea;
+}
+
+.icon-btn.clicked {
+  background-color: #101010; /* Change to your desired color on click */
+}
+
+.color-in {
+  width: 110px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  box-sizing: border-box;
+}

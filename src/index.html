@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Yusha</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/plugins/TextPlugin.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/TweenMax.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/utils/Draggable.min.js"></script>
+</head>
+
+<body>
+   <!-- popup version -->
+   <div id="popup" class="version-popup">
+      <div class="version-popup-content">
+         <span class="close-button" id="close-button">&times;</span>
+         <h2 class="version-head">Yusha</h2>
+         <div class="currentVer" id="currentversion">0.0.0</div>
+         <p class="description">Yusha is an animation tool dedicated to giving individuals the power to share their stories by creating animations.</p>
+         <p>Website: <a href="https://www.yusha.ai/">yusha.ai</a></p>
+         <p id="version-message"></p>
+         <button id="update-button" class="update-button">Update</button>
+      </div>
+   </div>
+   <div id="login-popup" class="popup">
+      <div class="popup-content">
+         <h2>Login</h2>
+         <div class="input-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+         </div>
+         <div class="input-group password-group">
+            <label for="password">Password:</label>
+            <div class="password-container">
+               <input type="password" id="password" required>
+               <button id="toggle-password" class="toggle-password">Show</button>
+            </div>
+         </div>
+         <div id="error-message" class="error-message"></div>
+         <div class="button-group">
+            <button id="login-button">Login</button>
+            <button id="signup-button" class="signup-button">Sign Up</button>
+         </div>
+      </div>
+   </div> 
+   
+   <!-- <div class="topbar"> 
+      <div class="content">
+         <button class="topbarlinks" onclick="hideViewport()">
+            <i class="fa fa-square"></i>
+         </button>
+         <button class="topbarlinks" onclick="openViewport()">
+            <i class="fa fa-cube"></i>
+         </button>
+      </div>
+   </div> -->
+
+   <div class="screen-main-content d-flex w-full">
+      <div class="d-flex flex-grow flex-column w-auto" id="main-content">
+         <div class="main-content flex-grow max-w-full" style="height: 100%">
+            <div id="myDIV" class="myDIV"style="display: block;">
+               <canvas id="drawingCanvas" style="width: 100%; height: 100%;" ></canvas>
+
+               <canvas id="drawing-canvas" style="width: 100%; height: 100%"></canvas>
+            </div>               
+            <div class="viewport" id="myNDIV" style="height: 100%; display: none;">
+               <video id="video-openpose" style="display: none; width: 100%; position: absolute; top: 0; left: 0; left: 0; right: 0;" autoplay>
+               </video>
+               <canvas id="3dview" style="width: 100%; height: 677px;"></canvas>
+               <video id="video" style="display: none; width: 100%;  position: absolute; top: 0; left: 0; left: 0; right: 0;" autoplay></video>
+            </div>
+         </div>
+         <div class="bottom-panel max-w-full">
+            <div class="animation">
+               <!-- aros : 2024-4-29 -->
+               <div class="d-flex tool-bar">
+                  <div style="display: flex; gap: 10px; margin-top: 10px">
+                     <input type="file" id="video_opener" accept=".mp4, .avi"
+                        style="display:none; margin-top: 10px;"></input>
+                     <button onclick="getElementById('video_opener').click()" class="tooltip" data-tooltip="video_opener"><i
+                           class="fa fa-film" style='font-size:20px'></i></button>
+                     <input type="file" id="image_test_opener" accept=".jpg, .png"
+                        style="display:none; margin-top: 10px;"></input>
+                     <button onclick="getElementById('image_test_opener').click()" class="tooltip" data-tooltip="Select image for segment test..."><i
+                        class="fa fa-picture-o" style='font-size:20px'></i></button>                     <input type="file" id="audio_opener" accept=".mp3, .wav, .wma"
+                        style="display:none; margin-top: 30px;"></input>
+                     <button onclick="getElementById('audio_opener').click()" class="tooltip" data-tooltip="audio_opener"><i
+                           class="fa fa-music" style='font-size:20px'></i></button>
+
+                     <button id="mergeav" class="tooltip" data-tooltip="merge"><i class="fa fa-download"
+                           style='font-size:20px'></i></button>
+                  </div>
+                  <div style="margin-left: 15px; margin-top: 10px; display: flex; align-items: center;">
+                     <input type="range" min="50" max="250" value="100" id="rangeInput" disabled>
+                     <div class="range-value" id="rangeValue"></div>
+                  </div>
+               </div>
+               <div class="filmstrip-container" id="filmstrip-container"></div>
+            </div>
+         </div>
+      </div>
+      <!-- Left Control Panel -->
+      <div id="control-panel">
+         <button id="camera-btn"  class="icon-btn"><i class="fa fa-camera-retro"></i></button>
+         <button id="move-btn" class="icon-btn" ><i class="fa fa-arrows"></i></button>
+         <button id="rotate-btn"  class="icon-btn"><i class="fa fa-repeat"></i></button>
+       </div>
+      <!--Menu bar-->
+      <div>
+         <div class="top-left">
+            <button id="menu-but" class="logo-menu tooltip" data-tooltip="menu-logo"></button>
+            <div class="menu-panel" id="menu-panel">
+               <button class="menu-option tooltip" id="about" data-tooltip="about">About</button>
+               <button class="menu-option tooltip" data-tooltip="project">Project</button>
+               <div>
+                  <div class="tooltip" data-tooltip="language">Language</div>
+                  <div class="lang-toggle">
+                     <div class="lang-text">KOR</div>
+                        <label class="switch">
+                           <input type="checkbox" id="toggle-lang">
+                           <span class="slider-lang round"></span>
+                        </label>
+                     <div class="lang-text">ENG</div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!--Menu bar-->
+      <!-- Tool bar -->
+      <div>
+         <div class="top-right">
+            <button id="plus-main" class="icon-btn tooltip" data-tooltip="plus"><i class="fa fa-plus"></i></button>
+            <button id="asset-main" class="icon-btn tooltip" data-tooltip="asset"><i class="fa fa-archive"></i></button>
+            <button id="scene-main" class="icon-btn tooltip" data-tooltip="scene"><i class="fa fa-film"></i></button>
+         </div>
+         <div class="options" id="plus-bar">
+            <button class="icon-btn active tool tooltip" data-tooltip="brush" id="brush"><i class="fa fa-pencil"></i></button>
+            <button class="icon-btn tool tooltip" data-tooltip="eraser" id="eraser"><i class="fa fa-eraser"></i></button>
+            <button class="icon-btn clear-canvas tooltip" data-tooltip="clear"><i class="fa fa-paint-brush"></i></button>
+            <button class="icon-btn tooltip" data-tooltip="undo" id="undo"><i class="fa fa-undo"></i></button>
+            <button class="icon-btn tooltip" data-tooltip="redo" id="redo"><i class="fa fa-repeat"></i></button>
+            <button id="layerButton" class="icon-btn"><i class="fa fa-object-group"></i></button>
+         </div>
+         <div class="top-properties" id="layer-properties">
+            <div class="framelist" id="framelist"></div>
+         </div>
+         <div class="options" id="asset-bar">
+            <button class="icon-btn tooltip" data-tooltip="createAsset" id="createAsset"><i class="fa fa-plus-circle"></i></button>
+            <button class="icon-btn tooltip" data-tooltip="assetGallery" id="galleryAsset"><i class="fa fa-file-image-o"></i></button>
+            <!-- <input type="file" id="file-opener" accept=".gltf, .glb"> -->
+         </div>
+         <div class="options" id="scene-bar">
+            <button class="icon-btn tooltip" data-tooltip="createScene" id="sceneMenuButton" style="display: flex;"><i class="fa fa-pencil-square-o"></i></button>
+            <button class="icon-btn tooltip" data-tooltip="motionScene" id="motionSceneButton" style="display: flex;"><i class="fa fa-rocket"></i></button>
+            <button class="icon-btn tooltip" data-tooltip="sceneGallery" id="sceneGalleryButton" style="display: flex;"><i class="fa fa-picture-o"></i></button>
+
+         </div>
+         <div class="top-properties" id="brush-properties">
+            <div class="size">
+               <label for="size-input">Size:</label>
+               <input type="number" id="size-input" min="1" max="100" value="5">
+           </div>
+            <div class="colors">
+               <label class="title">Colors</label>
+               <ul class="options">
+                  <li class="option"></li>
+                  <li class="option selected"></li>
+                  <li class="option"></li>
+                  <li class="option"></li>
+                  <li class="option">
+                     <input type="color" id="color-picker" value="#4A98F7">
+                  </li>
+               </ul> 
+            </div>
+            <div class="Primary color">
+               <label class="title">Colors</label>
+               <input class="color-in" type="text" id="color-input" value="#000" data-coloris>
+            </div>
+         </div>
+         <div class="top-properties" id="eraser-properties">
+            <div class="size">
+               <label for="eraser-size-input">Size:</label>
+               <input type="number" id="eraser-size-input" min="1" max="100" value="10">
+           </div>
+         </div>
+         <div class="asset-top-properties" id="create-asset-properties">
+            <div id="cubemap">
+               <div class="general-button-display">
+                  <div class="front">
+                     <button class="general-button d-flex flex-column display-button" data-view="front" ><i
+                           class='fa fa-plus' style='font-size:16px;color:orange;margin-right: 5px;'></i>
+                        <h4>FRONT</h4>
+                     </button>
+                  </div>
+                  <div class="back">
+                     <button class="general-button d-flex flex-column display-button" data-view="back"><i
+                           class='fa fa-plus' style='font-size:16px;color:orange;margin-right: 5px;'></i>
+                        <h4>BACK</h4>
+                     </button>
+                  </div>
+               </div>
+               <div class="general-button-display">
+                  <div class="left">
+                     <button class="general-button d-flex flex-column display-button" data-view="left" ><i
+                           class='fa fa-plus' style='font-size:16px;color:orange;margin-right: 5px;'></i>
+                        <h4>LEFT</h4>
+                     </button>
+                  </div>
+                  <div class="right">
+                     <button class="general-button d-flex flex-column display-button" data-view="right"><i
+                           class='fa fa-plus' style='font-size:16px;color:orange;margin-right: 5px;'></i>
+                        <h4>RIGHT</h4>
+                     </button>
+                  </div>
+               </div>
+               <div class="general-button-display">
+                  <div class="make">
+                     <button class="general-button d-flex flex-column"
+                        onclick="window.electronAPI.executeExternal()">
+                        <h4>MAKE</h4>
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="asset-top-properties" id="gallery-properties">
+            <div class="gallery-container" id="assetGallery"></div>
+         </div>
+         <div class="asset-character-properties" id="gallery-character-properties">
+            <div class="gallery-container" id="characterGallery"></div>
+         </div>
+         <div class="asset-character-properties" id="gallery-character-openpose-properties">
+            <div class="gallery-container" id="characterOpenposeGallery"></div>
+         </div>
+         <div class="top-properties-buttons" id="scene-properties-buttons" style="display: none;">
+            <button class="icon-btn active tool secondbrush" id="brush"><i class="fa fa-pencil"></i></button>
+            <button class="icon-btn tool seconderaser" id="eraser"><i class="fa fa-eraser" ></i></button>
+            <button class="icon-btn clear-canvas1" id="clear"><i class="fa fa-paint-brush"></i></button>
+            <button class="save-img1 icon-btn" id="save"><i class="fa fa-download"></i></button>
+            <button class="select-character icon-btn" id="character"><i class="fa fa-user"></i></button>
+            <button class="generate-animation-background icon-btn" id="background"><i class="fa fa-picture-o"></i></button>
+            <button class="generate-animation icon-btn" id="'animation"><i class="fa fa-cogs"></i></button>
+         </div>
+         <div class="top-properties-buttons" id="motion-scene-buttons" style="display: none;">
+            <button id="open-camera" class="camera-open icon-btn" id="camera"><i class="fa fa-camera"></i></button>
+            <button id="start-recording" class="camera-recording icon-btn" style="display: none;"><i class="fa fa-arrow-circle-right"></i></button>
+            <button id="stop-recording" class="camera-stop icon-btn"style="display: none;"><i class="fa fa-stop"></i></button>
+            <button class="select-character-openpose icon-btn" id="character"><i class="fa fa-user"></i></button>
+            <button class="generate-open-pose icon-btn" id="'animation"><i class="fa fa-cogs"></i></button>
+            <button class="stop-video icon-btn" id="'stop-video"><i class="fa fa-stop"></i></button>
+ 
+         </div>
+         <div class="top-properties" id="scene-properties">
+            <div class="options buttonContainer">
+                  <button class="icon-btn active tool" id="brush"><i class="fa fa-pencil"></i></button>
+                  <button class="icon-btn tool" id="eraser"><i class="fa fa-eraser"></i></button>
+                  <button class="icon-btn clear-canvas1"><i class="fa fa-paint-brush"></i></button>
+            </div>  
+            <div class="size" style="display: none;">
+               <label for="size-input">Size:</label>
+               <input type="number" id="size-input" min="1" max="100" value="1">
+            </div>
+            <div class="Primary color" style="display: none;">
+               <label class="title">Colors</label>
+               <input class="color-in" type="text" id="color-input-scene" value="#000" data-coloris>
+            </div>
+            
+            
+         </div>
+         <div class="asset-top-properties" id="scene-gallery-properties">
+            <div class="gallery-container" id="sceneGallery"></div>
+         </div>
+         </div>
+      </div>
+   </div>
+   <script type="importmap">
+      {
+         "imports":
+         {
+            "three": "./three.module.min.js",
+         }
+      }
+   </script>
+   <script src="./resizer.js"></script>
+   <script src="./renderer.js"></script>
+   <script type="module">
+      import { init3DView, loadGltf, resetCamera, updateContent} from './3dview.js';
+      const state = init3DView(document.getElementById('3dview'));
+      document.getElementById("file-opener").onchange = (event) => {
+         loadGltf(state, event.target.files[0].path);
+      };   
+   </script>
+   <script>
+      Coloris({
+            previewElement: false,
+            theme: 'polaroid',
+            themeMode: 'dark',       // Set to dark mode
+            alpha: false,            // Disable alpha support
+            swatches: [              // Add swatches for preset colors
+                '#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51',
+                '#d62828', '#023e8a', '#0077b6', '#0096c7', '#00b4d8', '#48cae4'
+            ],
+            format: 'hex',           // Set the format of the color code
+            inline: false,           // Display as a popover
+            focusInput: true,        // Focus the input when the color picker is opened
+        });
+
+        // Initialize Coloris on the input element
+        Coloris({
+            el: '#color-input'
+        });
+   </script>
+   <script src="filmstrip.js"></script>
+   <script src="preload.js"></script>
+
+   <script src="./js/viewportControls.js"></script>
+   <script src="./js/drawingControls.js"></script>
+   <script src="./js/animationControls.js"></script>
+   <script src="./js/cubeMapControls.js"></script>
+   <script src="./js/sceneControls.js"></script>
+   <script src="./js/segmentControls.js"></script>
+
+</body>
+
+</html>

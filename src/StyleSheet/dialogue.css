@@ -1,0 +1,68 @@
+.version-popup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: azure;
+    justify-content: left;
+    align-items: left;
+    z-index: 2;
+}
+.version-head{
+    color: #cbcbcb;
+    margin-bottom: 0px;
+}
+.currentVer{
+  font-size: 15px;
+  color: #acacac;
+}
+.version-popup-content {
+    position: relative;
+    background-color: #212121;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    width: 80%;
+    max-width: 500px;
+    margin: auto;
+}
+
+.description{
+    font-size: 15px;
+    color: #cfcfcf;
+}
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.update-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #ff9d25;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.update-button:hover {
+    background-color: #0056b3;
+}
+a {
+    color: white; /* Sets the link color to white */
+    text-decoration: none; /* Removes the underline from the link */
+}
+
+a:hover {
+    color: lightgray; /* Optional: Sets the link color when hovered over */
+}
