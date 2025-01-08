@@ -1,5 +1,3 @@
-const CopyPlugin = require('copy-webpack-plugin');
-
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -10,15 +8,4 @@ module.exports = {
   module: {
     rules: require("./webpack.rules"),
   },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        // { from: 'bin', to: '../bin' },
-        { from: 'models', to: '../renderer/main_window/models' },
-      ]
-    })
-  ],
-  externals: {
-    'onnxruntime': 'onnxruntime-node',
-  }
 };

@@ -1,36 +1,36 @@
 .top-left {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    display: flex;
-    gap: 10px;
-    flex-direction: column;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
 }
 .menu-panel{
-    display: flex;
-    flex-direction: column;
-    top: 85px;
-    right: 87px;
-    gap: 5px;
-    width: 150px;
-    height: fit-content;
-    padding: 20px;
-    background-color: #4e4e4e;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), /* Primary shadow */
-    0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
+  display: flex;
+  flex-direction: column;
+  top: 85px;
+  right: 87px;
+  gap: 5px;
+  width: max-content;
+  height: fit-content;
+  padding: 20px;
+  background-color: #4e4e4e;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
 }
 
 .menu-option {
-    width: 100%;
-    padding: 8px 4px;
-    color: white;
-    background-color: transparent;
-    border: none;
-    text-align: left;
-    display: block;
-    border-bottom: 2px solid #b2b2b2;
-    font-size: 16px;
+  width: 100%;
+  padding: 8px 4px;
+  color: white;
+  background-color: transparent;
+  border: none;
+  text-align: left;
+  display: block;
+  border-bottom: 2px solid #b2b2b2;
+  font-size: 16px;
 }
 
 /* .menu-option:last-child {
@@ -38,92 +38,63 @@
 } */
 
 .menu-option:hover {
-    background-color: #383838;
-    cursor: pointer;
+  background-color: #383838;
+  cursor: pointer;
 }
 
 .logo-menu {
-    background: url('../Icons/menu-logo.png') no-repeat center center;
-    background-size: cover !important;
-    width: 100px !important; /* Adjust the width as needed */
-    height: 30px !important; /* Adjust the height as needed */
-    border: none;
-    cursor: pointer;
-  }
+  background: url("../Icons/menu-logo.png") no-repeat center center;
+  background-size: cover !important;
+  width: 100px !important; /* Adjust the width as needed */
+  height: 30px !important; /* Adjust the height as needed */
+  border: none;
+  cursor: pointer;
+}
 
-  .logo-menu:hover {
-    opacity: 0.8; /* Optional: Add a hover effect */
-  }
+.logo-menu:hover {
+  opacity: 0.8; /* Optional: Add a hover effect */
+}
 
-  .lang-toggle{
-    display:flex;
-    gap: 20px;
-  }
+.custom-switch {
+  position: relative;
+  width: 50px;
+  height: 30px;
+}
 
-  /* The switch - the box around the slider */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 22px;
-  }
-  
-  /* Hide default HTML checkbox */
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  /* The slider */
-  .slider-lang {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  .slider-lang:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
-    background-color: rgb(255, 146, 50);
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  
-  input:checked + .slider-lang {
-    background-color: #000000;
-  }
-  
-  input:focus + .slider-lang {
-    box-shadow: 0 0 1px #000000;
-  }
-  
-  input:checked + .slider-lang:before {
-    -webkit-transform: translateX(20px);
-    -ms-transform: translateX(20px);
-    transform: translateX(20px);
-  }
-  
-  /* Rounded sliders */
-  .slider-lang.round {
-    border-radius: 34px;
-  }
-  
-  .slider-lang.round:before {
-    border-radius: 50%;
-  }
-  .lang-text{
-    margin-top: 8px;
-  }
-  
+.custom-switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 30px;
+  transition: background-color 0.3s;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: rgb(255, 146, 50);
+  border-radius: 50%;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+input:checked + .slider {
+  background-color: #000000;
+}
+
+input:checked + .slider::before {
+  transform: translateX(25px);
+  -webkit-transform: translateX(25px);
+  -ms-transform: translateX(25px);
+}

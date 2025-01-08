@@ -4,19 +4,9 @@ const {FuseV1Options, FuseVersion} = require("@electron/fuses");
 module.exports = {
   packagerConfig: {
     icon: "src/Icons/yusha.ico",
-    asar: {
-      unpack: '**/*.node'
-    },
+    asar: true,
     extraResource: [
-      "./assets",
-      "./camera",
-      "./exe",
-      "./characters",
-      "./segResults",
-      "./bin",
-      "./models",
-      "./python",
-      // "./native_modules",
+      
     ],
   },
   rebuildConfig: {},

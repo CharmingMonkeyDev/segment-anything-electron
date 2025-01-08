@@ -45,11 +45,14 @@ body {
   overflow: hidden;
 }
 
-.brush-cursor{
-  cursor: url(../Icons/pencile.svg)0 32, auto !important;
+.brush-cursor {
+  cursor: url(../Icons/pencile.svg) 0 32, auto !important;
 }
-.eraser-cursor{
-  cursor: url(../Icons/eraser.svg)16 16, auto !important;
+.eraser-cursor {
+  cursor: url(../Icons/eraser.svg) 16 16, auto !important;
+}
+.fill-cursor {
+  cursor: url(../Icons/fill.svg) 0 32, auto !important;
 }
 
 #control-panel {
@@ -89,8 +92,8 @@ body {
 }
 
 .customradio {
-  width: 15px; 
-  height: 15px; 
+  width: 15px;
+  height: 15px;
   margin: 0;
   background-color: #fff;
 }
@@ -161,18 +164,6 @@ body {
   height: calc(100vh - 58px);
   background-color: #42b362;
   position: absolute;
-}
-
-.right-sidebar {
-  min-width: 350px;
-  /* background: #2a2a2a;
-  color: #fff; */
-  background: var(--background-color);
-  color: var(--font-color);
-}
-
-.right-sidebar-content {
-  overflow-y: auto;
 }
 
 .overflow-hidden {
@@ -458,7 +449,7 @@ input[type="number" i] {
   text-align: center;
 }
 
-.gallery-image{
+.project-gallery-image {
   display: inline-block;
   width: 100px;
   height: 100px;
@@ -472,16 +463,17 @@ input[type="number" i] {
   box-sizing: border-box;
 }
 
-.gallery-image:hover {
+.project-gallery-image:hover {
   border: 1px solid #777;
 }
 
-.gallery-image img {
+.project-gallery-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.gallery-character-image{
+
+.gallery-character-image {
   display: inline-block;
   width: 100px;
   height: 100px;
@@ -508,7 +500,7 @@ input[type="number" i] {
   border: 2px solid red; /* Selected border */
 }
 
-.gallery-character-openpose-image{
+.gallery-character-openpose-image {
   display: inline-block;
   width: 100px;
   height: 100px;
@@ -563,19 +555,16 @@ input[type="number" i] {
 /* bottom-panel */
 
 .bottom-panel {
-  border-top: 2px solid #aaa;
   padding: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   color: var(--font-color);
-  background: var(--bottom-panel-background);
-  width: 100%;
-  height: auto;
+  /* background: var(--bottom-panel-background); */
   /* background: #081320;
   color: #fff; */
 }
-.bottom-panel .tool-bar {
+/* .bottom-panel .tool-bar {
   padding-left: 10px;
-}
+} */
 .bottom-panel .tool-bar button {
   border: none;
   color: var(--bottom-panel-btton-color);
@@ -592,18 +581,10 @@ input[type="number" i] {
 }
 .main-content {
   flex-grow: 1;
-   display: flex;
-   flex-direction: column;
-   height: calc(100vh - 330px) !important;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 330px) !important;
 }
-.filmstrip-container {
-  overflow-x: auto;
-  max-width: calc(100vw - 5px) !important;
-  width: 100%;
-  padding: 15px 0px;
-  margin-left: 10px;
-}
-
 .timeline-bar,
 .audioline-bar {
   border-radius: 0px;
@@ -672,7 +653,7 @@ input[type="number" i] {
   opacity: 0;
   transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
   font-size: 12px;
-  border: 4px solid rgb(0, 0, 0)f;
+  border: 4px solid rgb(0, 0, 0) f;
   pointer-events: none; /* Prevent the tooltip from interfering with mouse events */
   z-index: 1000; /* Ensure tooltip appears above other content */
 }
@@ -705,4 +686,3 @@ input[type="number" i] {
   opacity: 1;
   transition-delay: 1s; /* Delay before tooltip becomes visible */
 }
-

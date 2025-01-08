@@ -1,10 +1,188 @@
-.top-right {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+#layer-properties {
+  /* margin-top: 20px;  */
+  padding-top: 5px;
+  padding-bottom: 25px;
+  background-color: #4e4e4e;
+  border-radius: 8px 8px 12px 12px; /* Match the buttons' rounded corners */
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 20px;
+  width: fit-content;
 }
+
+#layer-properties label {
+  font-size: 16px;
+  margin-top: 8px;
+  color: #ffffff;
+}
+
+#layer-button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Make the row conform to the container width */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove padding */
+  border-radius: 20px; /* Rounded corners for the container */
+  background-color: #4e4e4e; /* Ensure background color matches container */
+}
+
+/* Styles for individual buttons within the row */
+#layer-button-row .icon-btn {
+  flex: 1; /* Ensure buttons take equal width */
+  max-width: 80px; /* Optional: Limit maximum width for buttons */
+  background-color: #4e4e4e;
+  color: white;
+  border: none;
+  border-radius: 4px; /* Rounded corners for buttons */
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none; /* Remove any shadows */
+  margin: 0; /* Remove extra spacing around buttons */
+}
+
+#layer-button-row .icon-btn:hover {
+  background-color: #6e6e6e; /* Hover effect */
+}
+
+/* Ensure the container has no extra padding or margins */
+.top-properties-layer {
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ensure the container spans the full width */
+  box-sizing: border-box; /* Include padding and borders in the width calculation */
+}
+
+/* Header styling to remove gaps and fill the container */
+.collapsible-header {
+  background-color: #4e4e4e;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%; 
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box; 
+  margin: 0; 
+}
+
+.collapsible-header:hover,
+.collapsible-header:focus {
+  background-color: #4e4e4e;
+}
+
+.arrow {
+  font-size: 15px;
+  color: white;
+}
+
+.layer-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+}
+.content {
+  padding: 10px 18px;
+  display: block;
+  overflow: hidden;
+  background-color: #4e4e4e;
+  border-radius: 0 0 8px 8px;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.content.hidden {
+  display: none;
+}
+
+/* Frame List Section */
+.framelist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.framelistdiv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: 4e4e4e;
+  color: #4e4e4e;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.framelistdiv:hover {
+  background-color: #6e6e6e; /* Hover effect for non-selected items */
+  color: white;
+}
+
+.framelistdiv.selected {
+  background-color: #717070; 
+  color: white; 
+}
+
+
+.customradio {
+  flex-shrink: 0; /* Ensures radio buttons stay aligned */
+}
+
+#create-plane-btn {
+  background-color: #4e4e4e;
+  color: white;
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  font-size: 18px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto; /* Pushes the button to the far right */
+  box-shadow: none; /* Removes any shadow */
+}
+
+#create-plane-btn:hover {
+  background-color: #6e6e6e; /* Optional hover effect */
+}
+
+/* Buttons for visibility and deletion */
+.framelistdiv button {
+  flex-shrink: 0; /* Prevents buttons from shrinking */
+}
+
+.framelistdiv button:hover {
+  color: #000;
+}
+
+/* Icon styles for visibility toggles */
+.framelistdiv button i {
+  font-size: 16px;
+}
+
+/* Smooth Transitions */
+.hidden {
+  opacity: 0;
+  max-height: 0;
+  padding: 0;
+}
+
+.visible {
+  opacity: 1;
+  max-height: 500px;
+}
+
 
 .top-properties {
   position: fixed;
@@ -49,8 +227,8 @@
   flex-direction: column;
   top: 143px;
   right: 87px;
-  width: 250px;
-  height: 250px;
+  width: 500px;
+  height: 500px;
   padding: 20px;
   background-color: #4e4e4e;
   border-radius: 8px;
@@ -71,33 +249,23 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
     /* Primary shadow */ 0 6px 20px rgba(0, 0, 0, 0.19); /* Secondary shadow */
 }
-.size {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
-  padding: 0px;
-}
 
-label {
+.top-properties label {
   font-size: 16px;
   margin-top: 8px;
   color: #ffffff;
 }
 
 #size-input {
-  width: 30px;
   height: 20px;
-  font-size: 14px;
   text-align: center;
   border-radius: 5px;
-  background-color: #e0e0e0;
   color: #4a4a4a;
+  height: 30px;
 }
 .size-input-brush {
   width: 30px;
   height: 20px;
-  font-size: 14px;
   text-align: center;
   border-radius: 5px;
   background-color: #e0e0e0;

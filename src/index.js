@@ -7,21 +7,18 @@ const {
   protocol,
   net,
 } = require("electron");
-const { spawn } = require('child_process');
-
-const {execFile} = require("child_process");
+const { execFile } = require("child_process");
 const path = require("node:path");
 const os = require("os");
 const fs = require("fs");
-const {App_Path, getExePath, getFolderPath} = require("./utils");
-// const ort = require("onnxruntime-node");
-
-const ort = require('./native_module/onnxruntime-node');
-import npyjs from "npyjs";
-
+const { App_Path, getExePath, getFolderPath, getExePath1 } = require("./utils");
 let charcter = "empty";
 let background = "empty";
+let video = "empty";
 let sceneoutputfolderPaht = "C:/";
+let currentProjectPath = "projects";
+
+require("dotenv").config();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -45,6 +42,7 @@ const createWindow = () => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: true,
       contextIsolation: true,
+      webSecurity: false,
     },
   });
 
@@ -53,7 +51,7 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -111,6 +109,7 @@ ipcMain.on("file-null-error", (event, message) => {
 ipcMain.on("execute-external", (event) => {
   const executablePath = getExePath("ai.exe");
   const parameters = [getFolderPath("assets")];
+  console.log(parameters, executablePath);
   execFile(executablePath, parameters, (err, data) => {
     if (err) {
       console.error("Error:", err);
@@ -220,7 +219,7 @@ ipcMain.on("open-pose", (event) => {
     const exePath = getExePath("openpose.exe");
 
     let command;
-    command = `-g ./rigged.glb -l ./exe/logo.png -v ./camera/camera.mp4`;
+    command = `-g ./rigged.glb -l ./exe/logo.png -v ./video/video.mp4`;
     execFile(exePath, command.split(" "), (err, stdout, stderr) => {
       if (err) {
         console.error("Error:", err);
@@ -242,7 +241,7 @@ ipcMain.on("select-background", async () => {
   const result = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [
-      {name: "select background file", extensions: ["png", "jpg", "jpeg"]},
+      { name: "select background file", extensions: ["png", "jpg", "jpeg"] },
     ],
   });
   if (result.canceled) {
@@ -251,7 +250,7 @@ ipcMain.on("select-background", async () => {
   }
   const sourceFilePath = result.filePaths[0];
   background = sourceFilePath;
-  const outputFolderPath = getFolderPath("assets");
+  const outputFolderPath = getFolderPath(currentProjectPath, "/assets");
 
   if (!fs.existsSync(outputFolderPath)) {
     fs.mkdirSync(outputFolderPath);
@@ -271,10 +270,15 @@ ipcMain.on(
   (event, videoPath, audioPath, outputPath, mode) => {
     const ffmpegPath = getExePath("ffmpeg.exe");
     let command;
-    if (mode == 1) {
+    if (mode === 1) {
       command = `-i ${videoPath} -i ${audioPath} -c:v copy -c:a aac ${outputPath}`;
-    } else {
+    } else if (mode === 0) {
       command = `-i ${videoPath} -i ${audioPath} -c:v copy -c:a aac -shortest ${outputPath}`;
+    } else if (mode === -1) {
+      command = `-i ${videoPath} -i ${audioPath} -vf "fps=15" -c:v libx264 -c:a aac -shortest ${outputPath}`;
+    } else {
+      console.error("Invalid mode");
+      return;
     }
     execFile(ffmpegPath, command.split(" "), (err, stdout, stderr) => {
       if (err) {
@@ -306,11 +310,11 @@ ipcMain.handle("isWindows", () => {
 ipcMain.handle("open-file-dialog", async (event, parameter) => {
   const result = await dialog.showOpenDialog({
     properties: ["openFile"],
-    filters: [{name: "PNG Images", extensions: ["png"]}],
+    filters: [{ name: "PNG Images", extensions: ["png"] }],
   });
 
   const sourceFilePath = result.filePaths[0];
-  const outputFolderPath = getFolderPath("assets");
+  const outputFolderPath = getFolderPath(currentProjectPath, "assets");
 
   // Create the output folder if it doesn't exist
   if (!fs.existsSync(outputFolderPath)) {
@@ -323,7 +327,7 @@ ipcMain.handle("open-file-dialog", async (event, parameter) => {
   console.log(
     `File copied successfully to ${path.join(outputFolderPath, parameter)}`
   );
-  return {parameter, filePath: path.join(outputFolderPath, parameter)};
+  return { parameter, filePath: path.join(outputFolderPath, parameter) };
 });
 ipcMain.handle("open-folder-dialog", async (event) => {
   const result = await dialog.showOpenDialog({
@@ -332,17 +336,87 @@ ipcMain.handle("open-folder-dialog", async (event) => {
 
   if (result.canceled) {
     sceneoutputfolderPaht = "C:/";
-    return {folderPath: null};
+    return { folderPath: null };
   }
   const folderPath = result.filePaths[0];
   sceneoutputfolderPaht = folderPath;
   console.log(`Folder selected: ${folderPath}`);
 
   // Return the selected folder path
-  return {folderPath};
+  return { folderPath };
 });
-ipcMain.handle("open-file-assets", async (event) => {
-  const directoryPath = getFolderPath("assets");
+
+ipcMain.handle("new-project-path", async (event) => {
+  console.log("Inside folder dialog");
+  // const outputFolderBasePath = "./projects";
+  // const assetSourcePath = "./projects/assets"
+  const outputFolderBasePath = "./projects";
+  const assetSourcePath = "./projects/assets"
+  const iconSourcePath = "./src/Icons/projectIcon.png";
+
+  // Ensure the 'projects' folder exists
+  if (!fs.existsSync(outputFolderBasePath)) {
+    fs.mkdirSync(outputFolderBasePath);
+  }
+
+  let folderIndex = 1;
+  let newFolderName;
+  let newFolderPath;
+
+  function copyDirectorySync(src, dest) {
+    // Ensure the destination directory exists
+    if (!fs.existsSync(dest)) {
+        fs.mkdirSync(dest, { recursive: true });
+    }
+
+    // Read contents of the source directory
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+
+        if (entry.isDirectory()) {
+            // If entry is a directory, recursively copy it
+            copyDirectorySync(srcPath, destPath);
+        } else if (entry.isFile()) {
+            // If entry is a file, copy it
+            fs.copyFileSync(srcPath, destPath);
+        }
+    }
+}
+
+  // Loop to find the next available folder name (project_1, project_2, etc.)
+  do {
+    newFolderName = `project_${folderIndex}`;
+    newFolderPath = path.join(outputFolderBasePath, newFolderName);
+    folderIndex++;
+  } while (fs.existsSync(newFolderPath));  // Increment until an available folder name is found
+
+  // Create the new folder
+  try {
+    fs.mkdirSync(newFolderPath);
+    console.log("Folder created at:", newFolderPath);
+    
+    const destinationImagePath = path.join(newFolderPath, 'front.png');
+    const destinationDirectory = path.join(newFolderPath, 'assets')
+    fs.copyFileSync(iconSourcePath, destinationImagePath);
+    fs.mkdirSync(destinationDirectory);
+    copyDirectorySync(assetSourcePath, destinationDirectory);
+
+    console.log(`Image copied to: ${destinationImagePath}`);
+    
+  } catch (error) {
+    console.error("Error creating folder:", error);
+    return "";  // Return an empty string on error
+  }
+
+  // Return the path of the newly created folder
+  return newFolderPath;
+});
+
+ipcMain.handle("open-file-assets", async (event, current_project) => {
+  const directoryPath =  `./projects/${current_project}/assets`
   let arrayOfFiles = [];
 
   async function recursiveRead(currentPath) {
@@ -356,7 +430,7 @@ ipcMain.handle("open-file-assets", async (event) => {
         await recursiveRead(fullPath);
       } else {
         const ext = path.extname(fullPath).toLowerCase();
-        if (ext === ".jpg" || ext === ".jpeg" || ext === ".png") {
+        if (ext === ".gif") {
           arrayOfFiles.push(fullPath);
         }
       }
@@ -367,8 +441,8 @@ ipcMain.handle("open-file-assets", async (event) => {
 });
 
 ipcMain.handle("open-character", async (event) => {
-  console.log("open-character");
-  const directoryPath = getFolderPath("characters");
+  console.log("hello");
+  const directoryPath = getFolderPath(currentProjectPath, "characters");
   let arrayOfFiles = [];
 
   async function recursiveRead(currentPath) {
@@ -392,8 +466,79 @@ ipcMain.handle("open-character", async (event) => {
   return arrayOfFiles;
 });
 
+ipcMain.handle("set-project-path", async (event, projectPath) => {
+  currentProjectPath = projectPath;
+  console.log(currentProjectPath);
+});
+
+// To get the currentProjectPath in renderer process
+ipcMain.handle("get-project-path", async () => {
+  return currentProjectPath;
+});
+
+ipcMain.handle("open-projects", async (event) => {
+  const directoryPath = getFolderPath("projects");
+
+  // Ensure the 'projects' folder exists
+  try {
+    await fs.promises.mkdir(directoryPath, { recursive: true });
+    console.log(`Verified or created projects folder at: ${directoryPath}`);
+  } catch (error) {
+    console.error("Error ensuring projects folder:", error);
+    return []; // Return an empty array if folder creation fails
+  }
+  
+  let arrayOfFiles = [];
+
+  async function readImmediateSubdirectories(currentPath) {
+    const files = await fs.promises.readdir(currentPath);
+
+    for (const file of files) {
+      const fullPath = path.join(currentPath, file);
+      const stat = await fs.promises.stat(fullPath);
+
+      // If it's project directory, check for 'front.png' inside it only, not in its nested folders
+      if (stat.isDirectory()) {
+        const frontImagePath = path.join(fullPath, "front.png");
+        // Check if 'front.png' exists in the directory
+        try {
+          const imageStat = await fs.promises.stat(frontImagePath);
+          if (imageStat.isFile()) {
+            arrayOfFiles.push(frontImagePath);
+          }
+        } catch (err) { }
+      }
+    }
+  }
+
+  await readImmediateSubdirectories(directoryPath);
+  return arrayOfFiles;
+});
+
+ipcMain.handle("project-folder-count", async (event) => {
+  const directoryPath = getFolderPath("projects");
+  let folderCount = 0;
+
+  async function readImmediateSubdirectories(currentPath) {
+    const files = await fs.promises.readdir(currentPath);
+
+    for (const file of files) {
+      const fullPath = path.join(currentPath, file);
+      const stat = await fs.promises.stat(fullPath);
+
+      // If it's a directory, increment the folder count
+      if (stat.isDirectory()) {
+        folderCount += 1;
+      }
+    }
+  }
+
+  await readImmediateSubdirectories(directoryPath);
+  return folderCount;
+});
+
 ipcMain.handle("open-file-scenes", async (event) => {
-  const directoryPath = getFolderPath("scene");
+  const directoryPath = getFolderPath(currentProjectPath, "scene");
   let arrayOfFiles = [];
 
   async function recursiveRead(currentPath) {
@@ -424,30 +569,32 @@ ipcMain.handle(
     let folderPath;
     let count = 0;
 
-    if (check == false) {
-      const folders = fs.readdirSync(outputFolderPath);
-      folders.forEach((folder) => {
-        if (folder.startsWith("scene_")) {
-          count++;
-          console.log("Matched folder:", folder);
-        }
-      });
-      folderPath =
-        outputFolderPath + "scene_" + count.toString() + "_animation";
-      fs.mkdirSync(folderPath);
-    } else {
-      console.log("find the frame which need to edit", frameNum);
-      folderPath =
-        outputFolderPath + "scene_" + frameNum.toString() + "_animation";
-      const files = fs.readdirSync(folderPath);
+    // if (check == false) {
+    //   const folders = fs.readdirSync(outputFolderPath);
+    //   folders.forEach((folder) => {
+    //     if (folder.startsWith("scene_")) {
+    //       count++;
+    //       console.log("Matched folder:", folder);
+    //     }
+    //   });
+    //   folderPath =
+    //     outputFolderPath + "scene_" + count.toString() + "_animation";
+    //   fs.mkdirSync(folderPath);
+    // } else {
+    //   console.log("find the frame which need to edit", frameNum);
+    //   folderPath =
+    //     outputFolderPath + "scene_" + frameNum.toString() + "_animation";
+    //   const files = fs.readdirSync(folderPath);
 
-      files.forEach((file) => {
-        const filePath = path.join(folderPath, file);
-        fs.unlinkSync(filePath);
-      });
-    }
+    //   files.forEach((file) => {
+    //     const filePath = path.join(folderPath, file);
+    //     fs.unlinkSync(filePath);
+    //   });
+    // }
 
-    let outputFileName = folderPath + "/1.png";
+    // let outputFileName = folderPath + "/1.png";
+    // let outputFileName = "./1.png";
+    const outputFileName = path.join(("./input_image"), "./1.png");
 
     console.log("path : : : ", outputFileName);
 
@@ -455,33 +602,75 @@ ipcMain.handle(
       encoding: "base64",
     });
 
-    const content = `${countNum}\n${durationNum}`;
-    let txtFilePath = folderPath + "/info.txt";
-    await fs.writeFileSync(txtFilePath, content);
-
-    const exePath = getExePath("skeleton.exe");
-    let command;
-    command = `-f ${folderPath}`;
-    execFile(exePath, command.split(" "), (err, stdout, stderr) => {
-      if (err) {
-        console.error("Error:", err);
-        return;
-      }
-      console.log("Output:", stdout);
-    });
   }
 );
 
-ipcMain.on("save-video", (event, arrayBuffer) => {
+ipcMain.on("save-video", async (event, arrayBuffer) => {
   const videoBuffer = Buffer.from(new Uint8Array(arrayBuffer));
-  const filePath = path.join(getFolderPath("camera"), "./camera1.mp4");
-  fs.mkdir(path.dirname(filePath), {recursive: true}, (err) => {
+  const webmFilePath = path.join("./video", "video.webm");
+  const mp4FilePath = path.join("./video", "video.mp4");
+
+  const imagePath = path.join(("./input_image"), "./1.png");
+
+  const gifPath = path.resolve('./', "video.gif");
+  if (await fs.existsSync(gifPath)) {
+    await fs.unlinkSync(gifPath);
+  }
+  if (await fs.existsSync(webmFilePath)) {
+    await fs.unlinkSync(webmFilePath);
+  }
+  if (await fs.existsSync(mp4FilePath)) {
+    await fs.unlinkSync(mp4FilePath);
+  }
+  // await fs.mkdir(path.dirname(webmFilePath), { recursive: true }, async(err) => {
+  const filePath = path.join(getFolderPath("video"), "./video1.mp4");
+  fs.mkdir(path.dirname(filePath), { recursive: true }, (err) => {
     if (err) throw err;
 
-    fs.writeFile(filePath, videoBuffer, (err) => {
+    fs.writeFile(webmFilePath, videoBuffer, (err) => {
       if (err) throw err;
       console.log("Video saved successfully!");
+      const ffmpegPath = getExePath("ffmpeg.exe");
+      const command1 = `-i ${webmFilePath} -c:v libx264 ${mp4FilePath}`;
+
+      execFile(ffmpegPath, command1.split(" "), (err, stdout, stderr) => {
+        if (err) {
+          console.error("FFmpeg conversion error:", err);
+          return;
+        }
+        console.log("Video converted to MP4 successfully!");
+
+        const exePath = ("./app.exe");
+        let command;
+        command = `-i ${imagePath} -v ${mp4FilePath}`;
+        execFile(exePath, command.split(" "), (err, stdout, stderr) => {
+          if (err) {
+            console.error("Error:", err);
+            return;
+          }
+          console.log("Output:", stdout);
+          fs.watchFile('./video.gif', (curr, prev) => {
+            if (curr.mtime !== prev.mtime) {
+              event.sender.send('gif-ready', gifPath);
+            }
+          });
+        });
+      });
     });
+  });
+});
+
+ipcMain.on('rename-gif', (event, gifPath, email) => {
+  const newGifPath = (`./${email}.gif`);
+
+  fs.rename(gifPath, newGifPath, (err) => {
+    if (err) {
+      console.error('Error renaming GIF:', err);
+      event.sender.send('rename-failed');
+    } else {
+      console.log(`GIF renamed to ${email}.gif`);
+      event.sender.send('rename-success', newGifPath);
+    }
   });
 });
 
@@ -514,47 +703,7 @@ ipcMain.handle("skeleton-make", async (event) => {
     }
   });
   console.log(count, durationTimes, durationCounts);
-  return {count, durationTimes, durationCounts};
-});
-
-ipcMain.handle("verify-session", async (event, accessToken) => {
-  try {
-    const response = await fetch(
-      "https://rmhfunncqzrridcwwquo.supabase.co/functions/v1/get-user-data",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    const data = await response.json();
-    return {success: true, data};
-  } catch (error) {
-    return {success: false, error: error.message};
-  }
-});
-
-ipcMain.handle("authenticate-user", async (event, credentials) => {
-  try {
-    const response = await fetch(
-      "https://rmhfunncqzrridcwwquo.supabase.co/functions/v1/auth",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      }
-    );
-
-    const data = await response.json();
-    return {success: true, data};
-  } catch (error) {
-    return {success: false, error: error.message};
-  }
+  return { count, durationTimes, durationCounts };
 });
 
 ipcMain.handle("check-version", async () => {
@@ -572,162 +721,73 @@ ipcMain.handle("check-version", async () => {
       metadataVersion.minor === apiMinor &&
       metadataVersion.release === apiRelease;
 
-    return {isSameVersion, apiVersion};
+    return { isSameVersion, apiVersion };
   } catch (error) {
     console.log(error);
-    return {success: false, error: error.message};
+    return { success: false, error: error.message };
   }
 });
 
-ipcMain.handle("run-onnx-inference", async (event, parameter) => {
-  const {url, clicks, modelScale, tensorFile, dType} = parameter;
-  const modelResourcePath = getFolderPath("models");
-  const onnxUrl = path.join(modelResourcePath, url);
-  const model = await ort.InferenceSession.create(onnxUrl,{ executionProviders: ['cpu'] });
-  const segmentResultResourcePath = getFolderPath("segResults");
-  const npyUrl = path.join(segmentResultResourcePath, tensorFile);
-  if (!fs.existsSync(npyUrl)) {
-    console.error('Npy file not found:', npyUrl);
-    process.exit(1);
+
+ipcMain.on("select-video", async (event) => {
+  const gifPath = "video.gif";
+  if (fs.existsSync(gifPath)) {
+    fs.unlinkSync(gifPath);
   }
-  const buffer = await fs.readFileSync(npyUrl, async (err, buffer) => {
-    if (err) {
-        console.error('Error reading file:', err);
-        return null;
-    }
-    // Convert Buffer to ArrayBuffer
-    return buffer;
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile"],
+    filters: [
+      { name: "select video file", extensions: ["mp4"] },
+    ],
   });
-  const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-  let npyLoader = new npyjs();
-  const npArray = await npyLoader.parse(arrayBuffer);
-  const npyTensor = new ort.Tensor(npArray.dtype, npArray.data, npArray.shape);
-  
-// create a model Data
-
-  const imageEmbedding = npyTensor;
-  let pointCoords;
-  let pointLabels;
-  let pointCoordsTensor;
-  let pointLabelsTensor;
-  // Check there are input click prompts
-  if (clicks) {
-    let n = clicks.length;
-
-    // If there is no box input, a single padding point with 
-    // label -1 and coordinates (0.0, 0.0) should be concatenated
-    // so initialize the array to support (n + 1) points.
-    pointCoords = new Float32Array(2 * (n + 1));
-    pointLabels = new Float32Array(n + 1);
-
-    // Add clicks and scale to what SAM expects
-    for (let i = 0; i < n; i++) {
-      pointCoords[2 * i] = clicks[i].x * modelScale.samScale;
-      pointCoords[2 * i + 1] = clicks[i].y * modelScale.samScale;
-      pointLabels[i] = clicks[i].clickType;
-    }
-
-    // Add in the extra point/label when only clicks and no box
-    // The extra point is at (0, 0) with label -1
-    pointCoords[2 * n] = 0.0;
-    pointCoords[2 * n + 1] = 0.0;
-    pointLabels[n] = -1.0;
-
-  //   // Create the tensor
-    pointCoordsTensor = new ort.Tensor("float32", pointCoords, [1, n + 1, 2]);
-    pointLabelsTensor = new ort.Tensor("float32", pointLabels, [1, n + 1]);
-  }
-
-  const imageSizeTensor = new ort.Tensor("float32", [
-    modelScale.height,
-    modelScale.width,
-  ]);  
-  if (pointCoordsTensor === undefined || pointLabelsTensor === undefined)
+  if (result.canceled) {
+    video = "empty";
     return;
+  }
+  const sourceFilePath = result.filePaths[0];
+  video = sourceFilePath;
+  const outputFolderPath = "./video";
 
-  // There is no previous mask, so default to an empty tensor
-  const maskInput = new ort.Tensor(
-    "float32",
-    new Float32Array(256 * 256),
-    [1, 1, 256, 256]
+  if (!fs.existsSync(outputFolderPath)) {
+    fs.mkdirSync(outputFolderPath);
+  }
+
+  fs.copyFileSync(
+    sourceFilePath,
+    path.join(outputFolderPath, "video.mp4")
   );
-
-  // There is no previous mask, so default to 0
-  const hasMaskInput = new ort.Tensor("float32", [0]);
-  const data = {
-    image_embeddings: imageEmbedding,
-    point_coords: pointCoordsTensor,
-    point_labels: pointLabelsTensor,
-    orig_im_size: imageSizeTensor,
-    mask_input: maskInput,
-    has_mask_input: hasMaskInput,
-  };
-  const results = await model.run(data);
-  const output = results[model.outputNames[0]];
-
-  return {data: output.data, dim0: output.dims[2], dim1: output.dims[3]};
+  const imagePath = path.join(("./input_image"), "./1.png");
+  const mp4FilePath = path.join(outputFolderPath, "video.mp4");
+  const exePath = ("./video2gif.exe");
+  let command;
+  command = `-i ${imagePath} -v ${mp4FilePath}`;
+  execFile(exePath, command.split(" "), (err, stdout, stderr) => {
+    if (err) {
+      console.error("Error:", err);
+      return;
+    }
+    event.sender.send("gif-ready", gifPath);
+  });
 });
-ipcMain.handle("generate-npy-file", async (event, parameter) => {
-  const {filePath} = parameter;
-  const pythonPath = getFolderPath('python'); // For Windows
-  const pythonExecutablePath = path.join(pythonPath, 'generate_image_embedding.exe'); // For Windows
-  // const pythonExecutable = path.join(__dirname, 'venv', 'bin', 'python'); // For macOS/Linux
-
-  const modelPath = getFolderPath('models'); // For Windows
-  // const checkpoint = path.join(modelPath, "sam_vit_h_4b8939.pth")
-  const checkpoint = path.join(modelPath, "sam_vit_b_01ec64.pth")
-
-  const segResultFolder = getFolderPath('segResults');
-
-  const args = [
-    '--checkpoint', `${checkpoint}`,
-    '--input', `${filePath}`,
-    '--output', `${segResultFolder}`
-  ];
-
-  if (!fs.existsSync(filePath)) {
-      console.error('Input image not found:', filePath);
-      process.exit(1);
+// bvh to gif
+ipcMain.on("select-gallery", async (event, bvhPath) => {
+  const gifPath = "video.gif";
+  if (fs.existsSync(gifPath)) {
+    fs.unlinkSync(gifPath);
   }
+  console.log("bvhPath", bvhPath);
+  if (fs.existsSync(bvhPath)) {
+    const exePath = "image_bvh2gif.exe";
+    const imagePath = "input_image/1.png";
+    let command;
+    command = `-i ${imagePath} -b ${bvhPath}`;
 
-  if (!fs.existsSync(pythonExecutablePath)) {
-    console.error('Python executable not found:', pythonExecutablePath);
-    process.exit(1);
-  }
-
-  if (!fs.existsSync(checkpoint)) {
-    console.error('Checkpointer not found:', checkpoint);
-    process.exit(1);
-  }
-  // const process1 = await spawn(pythonExecutablePath, ['--input', filePath]);
-// Arguments array
-
-  // process1.stdout.on('data', (data) => {
-  //   return data;
-  // });
-  // process1.stderr.on('data', (data) => {
-  //   console.error(`stderr: ${data}`);
-  // });
-
-  // process1.on('close', (code) => {
-  //     console.log(`child process exited with code ${code}`);
-  // });
-  const result = await new Promise((resolve, reject) => {
-    execFile(pythonExecutablePath, args, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing script: ${error.message}`);
+    execFile(exePath, command.split(" "), (err, stdout, stderr) => {
+      if (err) {
+        console.error("Error:", err);
         return;
       }
-  
-      if (stderr) {
-        console.error(`Error in script execution: ${stderr}`);
-      }
-  
-      console.log(`Python script output: ${stdout}`);
-      resolve(stdout);
-      // You can further process the output here if needed
+      event.sender.send("gif-ready", gifPath);
     });
-  });
-
-  return result.split('\r')[0];
+  }
 });

@@ -1,6 +1,12 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 const { contextBridge, ipcRenderer } = require("electron");
+const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 contextBridge.exposeInMainWorld("electronAPI", {
   isWindows: async () => {
@@ -11,14 +17,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     const result = await ipcRenderer.invoke("check-version");
     return result;
   },
-  verifySession: async (accessToken) => {
-    const result = await ipcRenderer.invoke("verify-session", accessToken);
-    return result;
-  },
-  authenticateUser: async (credentials) => {
-    const result = await ipcRenderer.invoke("authenticate-user", credentials);
-    return result;
-  },
+  setProjectPath: (projectPath) =>
+    ipcRenderer.invoke("set-project-path", projectPath),
+  getProjectPath: () => ipcRenderer.invoke("get-project-path"),
   executeExternal: () => {
     ipcRenderer.send("execute-external");
     ipcRenderer.on("external-execution-result", (event, result) => {
@@ -39,12 +40,28 @@ contextBridge.exposeInMainWorld("electronAPI", {
     const result = await ipcRenderer.invoke("open-folder-dialog");
     return result;
   },
-  fileAssetsDialog: async () => {
-    const result = await ipcRenderer.invoke("open-file-assets");
+  projectDisplay: async () => {
+    const result = await ipcRenderer.invoke("toggle-project-page");
+    return result;
+  },
+  newProjectDialog: async () => {
+    const result = await ipcRenderer.invoke("new-project-path");
+    return result;
+  },
+  fileAssetsDialog: async (current_project) => {
+    const result = await ipcRenderer.invoke("open-file-assets", current_project);
     return result;
   },
   characterDialog: async () => {
     const result = await ipcRenderer.invoke("open-character");
+    return result;
+  },
+  projectDialog: async () => {
+    const result = await ipcRenderer.invoke("open-projects");
+    return result;
+  },
+  projectFolderCount: async () => {
+    const result = await ipcRenderer.invoke("project-folder-count");
     return result;
   },
   fileScenesDialog: async () => {
@@ -54,6 +71,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
   saveCamera: (arrayBuffer) => {
     console.log("appl1");
     ipcRenderer.send("save-video", arrayBuffer);
+  },
+  onGifReady: (callback) => {
+    ipcRenderer.on('gif-ready', (event, gifPath) => callback(gifPath));
+  },
+  renameGif: (gifPath, email) => {
+    ipcRenderer.send('rename-gif', gifPath, email);
+  },
+  onRenameSuccess: (callback) => {
+    ipcRenderer.on('rename-success', (event, newGifPath) => callback(newGifPath));
+  },
+  onRenameFailed: (callback) => {
+    ipcRenderer.on('rename-failed', () => callback());
   },
   saveDialog: async (imageData, count, duration, check, frameNum) => {
     const result = await ipcRenderer.invoke(
@@ -73,6 +102,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "skeleton-make"
     );
     return { count, durationTimes, durationCounts };
+  },
+  supabaseInit: async (email, password) => {
+    const result = await ipcRenderer.invoke("supabase-init", email, password);
+    return result;
   },
   openPose: async () => {
     ipcRenderer.send("open-pose");
@@ -100,16 +133,22 @@ contextBridge.exposeInMainWorld("electronAPI", {
     };
     ipcRenderer.once("output-file-exists", (event, outputPath) => {
       showVideoInContainer(outputPath);
-      console.log("exists!!!!!!!");
     });
   },
   selectBackground: async () => {
     ipcRenderer.send("select-background");
   },
+  selectVideo: async () => {
+    ipcRenderer.send("select-video");
+  },
+  selectGallery: async (bvhPath) => {
+    ipcRenderer.send("select-gallery", bvhPath);
+  },
   // bpy animation
   makeAnimation: async () => {
     ipcRenderer.send("animation-making");
     ipcRenderer.once("character-null", (event) => {
+      console.log("hello");
       ipcRenderer.send("file-null-error", "Please select character glb file!");
     });
   },
@@ -123,17 +162,29 @@ contextBridge.exposeInMainWorld("electronAPI", {
       "Please select video file and audio file correctly."
     );
   },
+  getSession: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session) {
+      return data.session;
+    } else {
+      return null;
+    }
+  },
+  signIn: async (email, password) => {
+    const { data } = await supabase.auth.getSession();
 
-  // You can also expose other functions, like runInference from earlier
-  runInference: async ({url, clicks, modelScale, tensorFile, dType}) => {
-    const results = await ipcRenderer.invoke("run-onnx-inference", {url, clicks, modelScale, tensorFile, dType});
-
-    return results;
-  }, 
-
-  generateNpyFile: async ({filePath}) => {
-    const result = await ipcRenderer.invoke("generate-npy-file", {filePath});
-    console.log('******************************** here is npy result file ******************************** :' + result + "********************");
+    if (data?.session) {
+      return data.session;
+    } else {
+      const result = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return result;
+    }
+  },
+  signOut: async () => {
+    const result = await supabase.auth.signOut();
     return result;
   },
 });
