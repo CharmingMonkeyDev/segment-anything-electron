@@ -1,4 +1,4 @@
-const {app} = require("electron");
+const { app } = require("electron");
 const path = require("path");
 
 const Is_Prod = process.env.NODE_ENV === "production";
@@ -14,13 +14,23 @@ function getExePath(exeName) {
   return path.normalize(exeFilePath);
 }
 
-function getFolderPath(folderName) {
+function getExePath1(exeName) {
+  const exeFilePath =
+    Is_Prod && Is_Packaged
+      ? path.join(process.resourcesPath, exeName)
+      : path.join(App_Path, exeName);
+
+  return path.normalize(exeFilePath);
+}
+
+// To directly join all the paths from argument with app path
+function getFolderPath(...paths) {
   const folderPath =
     Is_Prod && Is_Packaged
-      ? path.join(process.resourcesPath, folderName)
-      : path.join(App_Path, folderName);
+      ? path.join(process.resourcesPath, ...paths)
+      : path.join(App_Path, ...paths);
 
   return path.normalize(folderPath);
 }
 
-export {getExePath, App_Path, getFolderPath};
+export {getExePath, App_Path, getFolderPath, getExePath1};
